@@ -5,20 +5,20 @@ const jwt = require('jsonwebtoken');
 
 var actual_User = new User();
 
-router.get('/', (req,res) => res.send('Hello World'))
 router.post('/signup', async (req,res) => {
     const {email, username, password} = req.body;
 
+    //Comprobar que no haya repeticiones en la DB
     var user = await User.findOne({email})
     if (user) return res.status(401).send("The email is already in use");
     user = await User.findOne({username})
     if (user) return res.status(401).send("The username is already in use");
 
+    //Hasheamos el password y metemos el nuevo User en la DB
     const newUser = new User({email, username, password});
     await newUser.save();
-    actual_User.username = username;
-    actual_User.password = password;
-    console.log(actual_User);
+    
+    //Creamos el token
     const token = jwt.sign({_id: newUser._id}, 'secretKey')
     //res.status(200).json({token})
 
