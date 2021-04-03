@@ -2,8 +2,10 @@ const {Router} = require('express');
 const router = Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const bcrypt = require("bcrypt");
 
-var actual_User = new User();
+const saltRounds = 10;
+var user_actual = new User();
 
 router.post('/signup', async (req,res) => {
     const {email, username, password} = req.body;
@@ -14,10 +16,9 @@ router.post('/signup', async (req,res) => {
     user = await User.findOne({username})
     if (user) return res.status(401).send("The username is already in use");
 
-    //Hasheamos el password y metemos el nuevo User en la DB
     const newUser = new User({email, username, password});
     await newUser.save();
-    
+
     //Creamos el token
     const token = jwt.sign({_id: newUser._id}, 'secretKey')
     //res.status(200).json({token})
@@ -26,13 +27,21 @@ router.post('/signup', async (req,res) => {
 })
 
 router.post('/login', async (req,res) => {
-    const {email, password} = req.body;
-    const user = await User.findOne({email})
-    if (!user || user.password != password) return res.status(401).send("The email doesn't exist or the password is incorrect");
-
-    const token = jwt.sign({_id: user._id}, 'secretKey');
-    return res.status(200).json({token});
-
+    const {username, password} = req.body;
+    const user = await User.findOne({username})
+    
+    if (!user) res.status(401).send("The username doesn't exist or the password is incorrect");
+    user.comparePassword(password, function(err, isMatch){
+        if (isMatch && isMatch == true){
+            user_actual = user;
+            const token = jwt.sign({_id: user._id}, 'secretKey');
+            return res.status(200).json({token});
+        }
+        else {
+            res.status(401).send("The username doesn't exist or the password is incorrect");
+        }
+    });
+    
 })
 
 
@@ -98,16 +107,25 @@ router.get('/profile', verifyToken, (req,res) =>{
 })
 
 router.post('/profile/modifypassword', verifyToken, async (req,res) => {
-    console.log(actual_User);
+
     const {old_password, new_password1, new_password2} = req.body;
-    if (old_password != actual_User.password) return res.status(401).send("The old password is incorrect");
+    const user = user_actual;
+    console.log(user);
+    user.comparePassword(old_password, function(err, isMatch){
+        if (isMatch && isMatch != true){
+            return res.status(401).send("The old password is incorrect");
+        }
+    });
     if (new_password1 != new_password2) return res.status(401).send("The two new passwords do not match");
-    if (old_password == new_password1) return res.status(401).send("The new password is the same as the old one");
-    
-    const name = actual_User.username;
-    const user = await User.findOne({name})
-
-
+    user.comparePassword(new_password1, function(err, isMatch){
+        if (isMatch && isMatch == true){
+            return res.status(401).send("The new password is the same as the old one");
+        }
+        else{}
+    });
+    user.password = new_password1;
+    await user.save();
+    return res.status(200).send("Password changed successfully");
 })
 module.exports = router;
 
