@@ -45,7 +45,7 @@ router.post('/login', async (req,res) => {
 })
 
 
-router.get('/tasks', (req,res)=>{
+/*router.get('/tasks', (req,res)=>{
     res.json([
         {
             _id:1,
@@ -111,21 +111,20 @@ router.post('/profile/modifypassword', verifyToken, async (req,res) => {
     const {old_password, new_password1, new_password2} = req.body;
     const user = user_actual;
     console.log(user);
-    user.comparePassword(old_password, function(err, isMatch){
-        if (isMatch && isMatch != true){
-            return res.status(401).send("The old password is incorrect");
-        }
-    });
+    
     if (new_password1 != new_password2) return res.status(401).send("The two new passwords do not match");
-    user.comparePassword(new_password1, function(err, isMatch){
+
+    user.comparePassword(old_password, function(err, isMatch){
         if (isMatch && isMatch == true){
             return res.status(401).send("The new password is the same as the old one");
         }
-        else{}
     });
+    if (new_password1 == old_password) return res.status(401).send("The new password is the same as the old one");
+
     user.password = new_password1;
     await user.save();
     return res.status(200).send("Password changed successfully");
-})
+});
+*/
 module.exports = router;
 
