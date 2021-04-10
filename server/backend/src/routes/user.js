@@ -23,7 +23,7 @@ router.post('/signup', async (req,res) => {
     const token = jwt.sign({_id: newUser._id}, 'secretKey')
     //res.status(200).json({token})
 
-    return res.status(200).send("User created successfully");
+    res.status(200).json({token});
 })
 
 router.post('/login', async (req,res) => {
