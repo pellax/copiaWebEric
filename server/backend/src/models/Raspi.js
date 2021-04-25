@@ -1,22 +1,15 @@
 const {Schema, model} = require('mongoose');
-const LocalStrategy = require('passport-local').Strategy
-const JwtStrategy = require('passport-jwt').Strategy
-
 var bcrypt = require('bcrypt');
-
     SALT_WORK_FACTOR = 10;
 
- const userSchema = new Schema({
-     email: {type: String, required: true, unique: true},
+ const raspiSchema = new Schema({
      username: {type: String, required: true, unique: true},
-     password: {type: String, required: true},
-     pin: {type: String, required: false }
-     
+     raspberry: {type: String, required: true,unique: true}     
  }, {
      timestamps: true
  });
 
- userSchema.pre('save', function(next){
+ RaspiSchema.pre('save', function(next){
     var user = this;
 
     //Only hash the password if it has been modified or is new
@@ -45,4 +38,4 @@ var bcrypt = require('bcrypt');
  };
  
 
- module.exports = model('User', userSchema);
+ module.exports = model('Raspi', raspiSchema);
