@@ -33,7 +33,24 @@ router.post('/signup', async (req,res) => {
 
     res.status(200).json({token});
 })
+passport.use('local',new LocalStrategy({
 
+function(username, password, done){
+	const user = User.findOne({username})
+         
+	const isValidPass = bcrypt.compareSync(password,user.password)
+	if(isValidPass)
+	{
+	const ret = {username: username, description: 'a nice user'}
+	return done(null,ret)
+	}
+	return done(null, false)
+});
+passport.use('jwt', new JwtStrategy({
+    jwtFromRequest: req => { return (req && req.cookies) ? req.cookies.auth : null },
+    secretOrKey   : jwtSecret
+},  async (token, done) => { return done(null, (token) ? token.sub : false) }
+))
 router.post('/login', passport.authenticate('local', { failureRedirect: '/login', session: false }), async (req,res) => {
     const {username, password} = req.body;
     const user = await User.findOne({username})
