@@ -44,5 +44,4 @@ var bcrypt = require('bcrypt');
      });
  };
  
-
  module.exports = model('User', userSchema);

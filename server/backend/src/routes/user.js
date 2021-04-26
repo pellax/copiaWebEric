@@ -4,12 +4,11 @@ const User = require('../models/User');
 const Raspberry = require('../models/Raspi');
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
-const passport = require('passport')
+const passport = require('../passport.js')
 const cookieParser = require('cookie-parser')
 const fortune = require('fortune-teller')
 const jwtSecret = require('crypto').randomBytes(32)
-const LocalStrategy = require('passport-local').Strategy
-const JwtStrategy = require('passport-jwt').Strategy
+const { session } = require('passport');
 
 
 const saltRounds = 10;
@@ -27,54 +26,16 @@ router.post('/signup', async (req,res) => {
     const newUser = new User({email, username, password});
     await newUser.save();
 
-    //Creamos el token
-    const token = jwt.sign({_id: newUser._id}, 'secretKey')
-    //res.status(200).json({token})
-
-    res.status(200).json({token});
+    res.status(200).send("The user has been created sucessfully");
 })
-passport.use('local',new LocalStrategy({
 
-function(username, password, done){
-	const user = User.findOne({username})
-         
-	const isValidPass = bcrypt.compareSync(password,user.password)
-	if(isValidPass)
-	{
-	const ret = {username: username, description: 'a nice user'}
-	return done(null,ret)
-	}
-	return done(null, false)
-});
-passport.use('jwt', new JwtStrategy({
-    jwtFromRequest: req => { return (req && req.cookies) ? req.cookies.auth : null },
-    secretOrKey   : jwtSecret
-},  async (token, done) => { return done(null, (token) ? token.sub : false) }
-))
-router.post('/login', passport.authenticate('local', { failureRedirect: '/login', session: false }), async (req,res) => {
-    const {username, password} = req.body;
-    const user = await User.findOne({username})
-    const jwtClaims = {
-            sub : req.user.username,
-            iss : 'localhost:3000',
-            aud : 'localhost:3000',
-            exp : Math.floor(Date.now() / 1000) + 604800,   // 1 week (7×24×60×60=604800s) from now
-            role: 'user'                                    // just to show a private JWT field
-        }
-    const token = jwt.sign(jwtClaims, jwtSecret)
-    if (!user) res.status(401).send("The username doesn't exist or the password is incorrect");
-    user.comparePassword(password, function(err, isMatch){
-        if (isMatch && isMatch == true){
-            user_actual = user;
-           // const token = jwt.sign({_id: user._id}, 'secretKey');
-            return res.status(200).json({token});
-        }
-        else {
-            res.status(401).send("The username doesn't exist or the password is incorrect");
-        }
-    });
-    
-})
+router.post('/login',
+ passport.authenticate('local', { failureRedirect: '/login', session: false }),
+ (req,res) => { 
+    res.cookie('auth', tokenize(req),{httpOnly:true, secure:true})
+    res.redirect('/')
+}
+) 
 
 app.get('/logout', (req,res) => {
     res.clearCookie('auth')
