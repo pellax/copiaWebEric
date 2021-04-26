@@ -8,8 +8,8 @@ var bcrypt = require('bcrypt');
  }, {
      timestamps: true
  });
-
- RaspiSchema.pre('save', function(next){
+/*
+ raspiSchema.pre('save', function(next){
     var user = this;
 
     //Only hash the password if it has been modified or is new
@@ -29,6 +29,7 @@ var bcrypt = require('bcrypt');
         });
     });
  });
+ 
 
  userSchema.methods.comparePassword = function (candidatePassword, callback){
      bcrypt.compare(candidatePassword, this.password, function(err,isMatch){
@@ -36,6 +37,6 @@ var bcrypt = require('bcrypt');
          callback(undefined, isMatch);
      });
  };
- 
+ */
 
  module.exports = model('Raspi', raspiSchema);
