@@ -14,8 +14,8 @@ const jwtSecret = require('crypto').randomBytes(32)
 
 
 passport.use('local',new LocalStrategy({
-    emailField: 
-    passwordField:
+    emailField: 'email' ,
+    passwordField:'password'
 },
   async function(email, password, done){
         console.log(email)
