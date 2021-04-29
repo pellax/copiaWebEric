@@ -3,7 +3,7 @@ const router = Router();
 const User = require('../models/User');
 const Raspberry = require('../models/Raspi');
 const jwt = require('jsonwebtoken');
-const bcrypt = require("bcrypt");
+//const bcrypt = require("bcrypt");
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy
@@ -13,7 +13,7 @@ const JwtStrategy = require('passport-jwt').Strategy
 const jwtSecret = require('crypto').randomBytes(32)
 
 
-passport.use('local',new LocalStrategy({
+/*passport.use('local',new LocalStrategy({
     emailField: 'email' ,
     passwordField:'password'
 },
@@ -32,7 +32,7 @@ passport.use('local',new LocalStrategy({
         return done(null, false)
     }
 ));
-    
+    */
 /*passport.use('jwt', new JwtStrategy({
         jwtFromRequest: req => { return (req && req.cookies) ? req.cookies.auth : null },
         secretOrKey   : jwtSecret

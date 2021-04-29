@@ -1,8 +1,9 @@
 const {Schema, model} = require('mongoose');
 const LocalStrategy = require('passport-local').Strategy
 const JwtStrategy = require('passport-jwt').Strategy
+var jwt = require('jsonwebtoken');
+var crypto = require('crypto');
 
-var bcrypt = require('bcrypt');
 
     SALT_WORK_FACTOR = 10;
 
@@ -36,13 +37,23 @@ var bcrypt = require('bcrypt');
         });
     });
  });
-
+/*
  userSchema.methods.comparePassword = function (candidatePassword, callback){
      bcrypt.compare(candidatePassword, this.password, function(err,isMatch){
          if (err) return callback(err);
          callback(undefined, isMatch);
      });
  };
+*/
+
+userSchema.methods.setPassword = function(password){
+    this.salt = crypto.randomBytes(16).toString('hex');
+    this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha512').toString('hex');
+  };
+ userSchema.methods.validPassword = function(password) {
+    var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha512').toString('hex');
+    return this.hash === hash;
+  };
 
  userSchema.methods.generateJwt = function() {
     var expiry = new Date();
