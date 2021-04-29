@@ -14,13 +14,15 @@ const jwtSecret = require('crypto').randomBytes(32)
 
 
 passport.use('local',new LocalStrategy({
-    emailField: 'email',
-    passwordField: 'password'
+    emailField: 
+    passwordField:
 },
   async function(email, password, done){
-        
+        console.log(email)
+        console.log(password)
         var user = await User.findOne({email});
-        if (!user) res.status(401).send("The username doesn't exist or the password is incorrect");
+        console.log(user)
+        if (!user) res.status(401).json({message:"The username doesn't exist or the password is incorrect"});
         const isValidPass = bcrypt.compareSync(password, user.password);
         if(isValidPass)
         {
@@ -56,14 +58,14 @@ router.post('/signup', async (req,res) => {
 
     //Comprobar que no haya repeticiones en la DB
     var user = await User.findOne({email})
-    if (user) return res.status(401).send("The email is already in use");
+    if (user) return res.status(401).json({message:'The email is already in use"'})//send(""");
     user = await User.findOne({username})
-    if (user) return res.status(401).send("The username is already in use");
+    if (user) return res.status(401).json({message:'The username is already in use'})//send("");
 
     const newUser = new User({email, username, password});
     await newUser.save();
 
-    res.status(200).send("The user has been created sucessfully");
+    res.status(200).json({message:'ok'});
 })
 
 router.post('/login',
