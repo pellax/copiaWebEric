@@ -1,4 +1,5 @@
-const {Schema, model} = require('mongoose');
+//const {Schema, model, Mongoose} = require('mongoose');
+const mongoose = require('mongoose');
 const LocalStrategy = require('passport-local').Strategy
 const JwtStrategy = require('passport-jwt').Strategy
 var jwt = require('jsonwebtoken');
@@ -7,15 +8,12 @@ var crypto = require('crypto');
 
     SALT_WORK_FACTOR = 10;
 
- const userSchema = new Schema({
+ const userSchema = new mongoose.Schema({
      email: {type: String, required: true, unique: true},
-     username: {type: String, required: true, unique: true},
-     password: {type: String, required: true},
-     pin: {type: String, required: false }
-     
- }, {
-     timestamps: true
- });
+     name: {type: String, required: true, unique: true},
+     hash: String,
+     salt: String
+     });
 
  userSchema.pre('save', function(next){
     var user = this;
@@ -67,4 +65,4 @@ userSchema.methods.setPassword = function(password){
     }, "MY_SECRET"); // DO NOT KEEP YOUR SECRET IN THE CODE!
   };
  
- module.exports = model('User', userSchema);
+ //module.exports = model('User', userSchema);

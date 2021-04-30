@@ -2,8 +2,9 @@ const {Router} = require('express');
 const router = Router();
 const User = require('../models/User');
 const Raspberry = require('../models/Raspi');
-const jwt = require('jsonwebtoken');
+//const jwt = require('jsonwebtoken');
 //const bcrypt = require("bcrypt");
+var jwt = require('express-jwt');
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy
@@ -51,7 +52,11 @@ tokenize = (req) => {
     return token;
 }*/
     
-
+var auth = jwt({
+    secret: 'MY_SECRET',
+    userProperty: 'payload',
+    algorithms: ['HS256']
+  });
 
 router.post('/signup', async (req,res) => {
     const {email, username, password} = req.body;
@@ -80,6 +85,8 @@ router.get('/logout', (req,res) => {
     res.clearCookie('auth')
     res.redirect('/login')
 })
+
+router.get('/private',auth,ctrlPrivate.profileRead);
 
 router.post('/addRaspi',(req,res)=> {
 	const {username,raspberry}=req.body;
