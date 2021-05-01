@@ -2,10 +2,10 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
 
-module.exports.register = function(req, res) {
+module.exports.register = async function(req, res) {
     var user = new User();
   
-    user.name = req.body.name;
+    user.username = req.body.username;
     user.email = req.body.email;
   
     user.setPassword(req.body.password);

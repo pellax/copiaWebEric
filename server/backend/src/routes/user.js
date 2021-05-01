@@ -1,17 +1,14 @@
 const {Router} = require('express');
 const router = Router();
-const User = require('../models/User');
-const Raspberry = require('../models/Raspi');
-//const jwt = require('jsonwebtoken');
-//const bcrypt = require("bcrypt");
 var jwt = require('express-jwt');
+var auth = jwt({
+    secret: 'MY_SECRET',
+    userProperty: 'payload',
+    algorithms: ['HS256']
+  });
+const ctrlProfile = require('../config/private');
+const ctrlAuth = require('../controllers/authentication');
 
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy
-const JwtStrategy = require('passport-jwt').Strategy
-
-
-const jwtSecret = require('crypto').randomBytes(32)
 
 
 /*passport.use('local',new LocalStrategy({
@@ -52,12 +49,11 @@ tokenize = (req) => {
     return token;
 }*/
     
-var auth = jwt({
-    secret: 'MY_SECRET',
-    userProperty: 'payload',
-    algorithms: ['HS256']
-  });
 
+
+
+router.post('/signup',ctrlAuth.register);
+/*
 router.post('/signup', async (req,res) => {
     const {email, username, password} = req.body;
 
@@ -72,7 +68,9 @@ router.post('/signup', async (req,res) => {
 
     res.status(200).json({message:'ok'});
 })
-
+*/
+router.post('/login',ctrlAuth.login);
+/*
 router.post('/login',
  passport.authenticate('local', { failureRedirect: '/login', session: false }),
  (req,res) => { 
@@ -80,13 +78,13 @@ router.post('/login',
     res.redirect('/')
 }
 ) 
-
+*/
 router.get('/logout', (req,res) => {
     res.clearCookie('auth')
     res.redirect('/login')
 })
 
-router.get('/private',auth,ctrlPrivate.profileRead);
+router.get('/private',auth,profileRead);
 
 router.post('/addRaspi',(req,res)=> {
 	const {username,raspberry}=req.body;

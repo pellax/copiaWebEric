@@ -7,9 +7,10 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 const passport = require('passport')
 require('./database')
+require('./config/passport');
 const routes=require('./routes/user')
 
-require('./config/passport');
+require('./config/private');
 app.use(cors())
 app.use(express.json())
 app.use(passport.initialize())
